@@ -1,6 +1,16 @@
 
 const globalTooltip = setTooltip();
 
+//color for passwords - all
+const colorScalePwAll = d3.scaleQuantize()
+.domain([0, 100])
+.range(d3.schemePuBuGn[9]);
+
+// color for passwords - first letter
+const colorScalePwFirst = d3.scaleQuantize()
+.domain([0, 100])
+.range(d3.schemeGreens[9]);
+
 
 function countCharacters(wordList, countingFunction){
   return countingFunction(wordList);
@@ -33,36 +43,19 @@ function countFirstChar(wordList) {
   return firstCharCounts;
 }
 
-function loadDataCreateKb(dataPath, containerId, countingFunction){
+function loadDataCreateKb(dataPath, containerId, countingFunction, colorScale){
   d3.csv(dataPath).then(data => {
     const words = data.map(d => d.string);
     const charCounts = countCharacters(words, countingFunction);
     console.log(`Character counts for ${containerId}: `, charCounts);
 
-    createKeyboard(containerId, charCounts);
-  })
+    createKeyboard(containerId, charCounts, colorScale);
+  });
 }
 
-loadDataCreateKb("assets/passwords.csv", 'kbOne', countAllOccurrences);
-loadDataCreateKb("assets/passwords.csv", 'kbTwo', countFirstChar);
+loadDataCreateKb("assets/passwords.csv", 'kbOne', countAllOccurrences, colorScalePwAll);
+loadDataCreateKb("assets/passwords.csv", 'kbTwo', countFirstChar, colorScalePwFirst);
 
-// d3.csv("assets/passwords.csv").then
-//   (data => {
-
-//     // console.log(d);
-//     const words = data.map(d => d.string);
-//     const charOccurrences = countAllOccurrences(words);
-//     console.log("char occurrences: ", charOccurrences);
-
-//     const firstChars = countFirstChar(words);
-//     console.log("first char occurrences: ", firstChars);
-
-//     createKeyboard('kbOne', charOccurrences);
-//     createKeyboard('kbTwo', firstChars);
-//   });
-
-
-//#region KEYBOARD VIS
 
 const kbLayout = [
   [{ char1: '1', char2: '!' },
@@ -116,7 +109,7 @@ const kbLayout = [
 ];
 
 
-function createKeyboard(containerId, charCounts) {
+function createKeyboard(containerId, charCounts, colorScale) {
   const kbContainer = document.createElement('div');
   kbContainer.className = 'keyboard';
   const totalOccurrences = Object.values(charCounts).reduce((a, b) => a + b, 0);
@@ -174,7 +167,7 @@ function createKeyboard(containerId, charCounts) {
 
   document.getElementById(containerId).appendChild(kbContainer);
 
-  colorKeysByOccurrence(charCounts, kbContainer);
+  colorKeysByOccurrence(charCounts, kbContainer, colorScale);
 }
 
 function setTooltip(){
@@ -195,12 +188,10 @@ function encodeCharForId(char) {
 }
 
 
-function colorKeysByOccurrence(charCounts, kbContainer) {
+function colorKeysByOccurrence(charCounts, kbContainer, colorScale) {
   const maxOccurrence = getMaxOccurrence(charCounts);
   // const colorScale = d3.scaleSequential(d3.interpolateOrRd).domain([0, maxOccurrence]);
-  const colorScale = d3.scaleQuantize()
-    .domain([0, maxOccurrence])
-    .range(d3.schemePuBuGn[9]);
+  colorScale.domain([0, maxOccurrence]);
 
   kbContainer.querySelectorAll('.keyboard-key').forEach(keyDiv => {
     const char1Div = keyDiv.querySelector('.char1');
@@ -237,6 +228,3 @@ function getBrightness(color) {
 
 }
 
-
-
-//#endregion
