@@ -1,5 +1,12 @@
 
-function countCharOccurrences(wordList) {
+const globalTooltip = setTooltip();
+
+
+function countCharacters(wordList, countingFunction){
+  return countingFunction(wordList);
+}
+
+function countAllOccurrences(wordList) {
   const charCounts = {};
   wordList.forEach(word => {
     for (const char of word) {
@@ -26,22 +33,33 @@ function countFirstChar(wordList) {
   return firstCharCounts;
 }
 
-d3.csv("assets/passwords.csv").then
-  (data => {
-
-    // console.log(d);
+function loadDataCreateKb(dataPath, containerId, countingFunction){
+  d3.csv(dataPath).then(data => {
     const words = data.map(d => d.string);
-    const charOccurrences = countCharOccurrences(words);
-    console.log("char occurrences: ", charOccurrences);
+    const charCounts = countCharacters(words, countingFunction);
+    console.log(`Character counts for ${containerId}: `, charCounts);
 
-    const firstChars = countFirstChar(words);
-    console.log("first char occurrences: ", firstChars);
+    createKeyboard(containerId, charCounts);
+  })
+}
 
-    createKeyboard('kbOne', charOccurrences);
-    createKeyboard('kbTwo', firstChars);
+loadDataCreateKb("assets/passwords.csv", 'kbOne', countAllOccurrences);
+loadDataCreateKb("assets/passwords.csv", 'kbTwo', countFirstChar);
 
+// d3.csv("assets/passwords.csv").then
+//   (data => {
 
-  });
+//     // console.log(d);
+//     const words = data.map(d => d.string);
+//     const charOccurrences = countAllOccurrences(words);
+//     console.log("char occurrences: ", charOccurrences);
+
+//     const firstChars = countFirstChar(words);
+//     console.log("first char occurrences: ", firstChars);
+
+//     createKeyboard('kbOne', charOccurrences);
+//     createKeyboard('kbTwo', firstChars);
+//   });
 
 
 //#region KEYBOARD VIS
@@ -101,10 +119,6 @@ const kbLayout = [
 function createKeyboard(containerId, charCounts) {
   const kbContainer = document.createElement('div');
   kbContainer.className = 'keyboard';
-
-  //creating the tooltip
-  const tooltip = document.createElement('div');
-  tooltip.className = 'tooltip';
   const totalOccurrences = Object.values(charCounts).reduce((a, b) => a + b, 0);
 
   kbLayout.forEach(row => {
@@ -134,20 +148,19 @@ function createKeyboard(containerId, charCounts) {
         element.addEventListener('mouseover', function(e){
           const count = charCounts[element.textContent] || 0;
           const percentage = ((count / totalOccurrences) * 100).toFixed(3);
-          tooltip.textContent = `${element.textContent}: ${percentage}%`;
-          tooltip.style.visibility = 'visible';
-          tooltip.style.top = `${e.pageY + 10}px`;
-          tooltip.style.left = `${e.pageX + 10}px`;
-          document.body.appendChild(tooltip);
+          globalTooltip.textContent = `${element.textContent}: ${percentage}%`;
+          globalTooltip.style.visibility = 'visible';
+          globalTooltip.style.top = `${e.pageY + 10}px`;
+          globalTooltip.style.left = `${e.pageX + 10}px`;
         });
 
         element.addEventListener('mousemove', function(e){
-          tooltip.style.top = `${e.pageY + 10}px`;
-          tooltip.style.left = `${e.pageX + 10}px`;
+          globalTooltip.style.top = `${e.pageY + 10}px`;
+          globalTooltip.style.left = `${e.pageX + 10}px`;
         });
 
         element.addEventListener('mouseout', function(e){
-          tooltip.style.visibility = "hidden";
+          globalTooltip.style.visibility = "hidden";
         });
       });
 
@@ -163,6 +176,14 @@ function createKeyboard(containerId, charCounts) {
 
   colorKeysByOccurrence(charCounts, kbContainer);
 }
+
+function setTooltip(){
+  const tooltip = document.createElement('div');
+  tooltip.className = 'tooltip';
+  document.body.appendChild(tooltip);
+  return tooltip;
+}
+
 
 
 function getMaxOccurrence(occurrences) {
