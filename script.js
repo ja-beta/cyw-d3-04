@@ -66,7 +66,7 @@ function loadDataCreateKb(dataPath, containerId, countingFunction, colorScale, c
 
 loadDataCreateKb("assets/passwords.csv", 'kbOne', countAllOccurrences, colorScalePwAll, true);
 loadDataCreateKb("assets/passwords.csv", 'kbTwo', countFirstChar, colorScalePwFirst, true);
-
+// loadDataCreatePercentageKb("assets/english-letter-frequency.csv", 'kbEnglish', colorScalePwAll);
 
 const kbLayout = [
   [{ char1: '1', char2: '!' },
@@ -251,4 +251,125 @@ function getBrightness(color) {
     return brightness > 127 ? 'black' : 'white';
 }
 
+// ---------------------------------------------------------------------------------------------
+
+//#region  English alphabet occurrence by percentage segment
+
+let percentageTooltip = setTooltipPercentage();
+
+function setTooltipPercentage(){
+  const tooltipPerc = document.createElement('div');
+  tooltipPerc.className = 'tooltip';
+  document.body.appendChild(tooltipPerc);
+  return tooltipPerc;
+}
+
+function loadDataCreatePercentageKb(dataPath, containerId, colorScale) {
+  d3.csv(dataPath).then(data => {
+    const charPercentages = {}; 
+
+    data.forEach(d => {
+      const character = d.character.toLowerCase();  
+      const percentage = parseFloat(d.percentage);  
+      
+      if (isNaN(percentage)) {
+        console.error(`Invalid percentage for character '${character}'`);
+        return;
+      }
+      
+      charPercentages[character] = percentage;
+    });
+
+    console.log(`Character percentages for ${containerId}: `, charPercentages);
+
+    createPercentageKeyboard(containerId, charPercentages, colorScale);  // Create the keyboard
+  });
+}
+
+const colorScalePwEnglish = d3.scaleLinear()
+  .domain([0, 100]) 
+  .range(["#dee2ff", "#c83d0a"]); 
+
+const englishKbLayout = [
+  [{ char1: 'q' }, { char1: 'w' }, { char1: 'e' }, { char1: 'r'}, { char1: 't'}, { char1: 'y'}, { char1: 'u'}, { char1: 'i'}, { char1: 'o'}, { char1: 'p'}],
+  [{ char1: 'a' }, { char1: 's' }, { char1: 'd' }, { char1: 'f' }, { char1: 'g'}, { char1: 'h'}, { char1: 'j'}, { char1: 'k'}, { char1: 'l'}],
+  [{ char1: 'z' }, { char1: 'x' }, { char1: 'c' }, { char1: 'v' }, { char1: 'b'}, { char1: 'n'}, { char1: 'm'}]
+];
+
+function createPercentageKeyboard(containerId, charPercentages, colorScale) {
+  const container = document.getElementById(containerId);
+
+  if (!container) {
+    console.error(`Container with ID '${containerId}' does not exist.`);
+    return; 
+  }
+
+  const kbContainer = document.createElement('div');
+  kbContainer.className = 'keyboard';
+
+  englishKbLayout.forEach(row => {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'keyboard-row';
+
+    row.forEach(key => {
+      const keyDiv = document.createElement('div');
+      keyDiv.className = 'keyboard-key';
+
+      const charDiv = document.createElement('div');
+      charDiv.className = 'char1'; 
+      charDiv.textContent = key.char1.toLowerCase(); 
+      keyDiv.appendChild(charDiv);
+
+      rowDiv.appendChild(keyDiv);
+
+      addEventListenersPercentage(charDiv, charPercentages); 
+    });
+
+    kbContainer.appendChild(rowDiv);
+
+  });
+
+  container.appendChild(kbContainer);
+
+  colorKeysByOccurrencePerc(charPercentages, kbContainer, colorScale);
+}
+
+function colorKeysByOccurrencePerc(charPercentages, kbContainer, colorScale) {
+  const maxPercentage = Math.max(...Object.values(charPercentages)); 
+  colorScale.domain([0, maxPercentage]);
+
+  kbContainer.querySelectorAll('.keyboard-key').forEach(keyDiv => {
+    const charDiv = keyDiv.querySelector('.char1'); 
+    const color = colorScale(charPercentages[charDiv.textContent] || 0);
+    charDiv.style.backgroundColor = color;
+    charDiv.style.color = getBrightness(color);
+  });
+}
+
+function addEventListenersPercentage(element, charPercentages) {
+  element.addEventListener('mouseover', function(e) {
+    const percentage = charPercentages[element.textContent] || 0;
+    percentageTooltip.textContent = `${element.textContent}: ${percentage}%`;
+    percentageTooltip.style.visibility = 'visible';
+    percentageTooltip.style.top = `${e.pageY + 10}px`;
+    percentageTooltip.style.left = `${e.pageX + 10}px`;
+  });
+
+  element.addEventListener('mousemove', function(e) {
+    percentageTooltip.style.top = `${e.pageY + 10}px`;
+    percentageTooltip.style.left = `${e.pageX + 10}px`;
+  });
+
+  element.addEventListener('mouseout', function(e) {
+    percentageTooltip.style.visibility = 'hidden';
+  });
+}
+
+
+// Load the keyboard with the new configuration
+loadDataCreatePercentageKb("assets/english-letter-frequency.csv", 'kbEnglish', colorScalePwEnglish);
+
+
+
+//#endregion
 

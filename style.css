@@ -70,5 +70,9 @@ body{
     pointer-events: none;
     font-size: 13px;
   }
+
+  #kbEnglish{
+    text-transform: uppercase;
+  }
   
   
