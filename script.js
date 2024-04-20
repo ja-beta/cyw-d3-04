@@ -10,7 +10,6 @@ const colorScalePwAll = d3.scaleSequential(d3.interpolateOrRd)
 .domain([1, 100]);
 
 // color for passwords - first letter
-
 const sqrtScalePwFirst = d3.scaleSqrt()
 .domain([1, 100])
 .range([1, 30]);
@@ -66,7 +65,6 @@ function loadDataCreateKb(dataPath, containerId, countingFunction, colorScale, c
 
 loadDataCreateKb("assets/passwords.csv", 'kbOne', countAllOccurrences, colorScalePwAll, true);
 loadDataCreateKb("assets/passwords.csv", 'kbTwo', countFirstChar, colorScalePwFirst, true);
-// loadDataCreatePercentageKb("assets/english-letter-frequency.csv", 'kbEnglish', colorScalePwAll);
 
 const kbLayout = [
   [{ char1: '1', char2: '!' },
@@ -120,12 +118,12 @@ const kbLayout = [
 ];
 
 
-function createKeyboard(containerId, charCounts, colorScale, considerUppercase) {
+function createKeyboard(containerId, charCounts, colorScale, considerUppercase, customLayout = kbLayout) {
   const kbContainer = document.createElement('div');
   kbContainer.className = 'keyboard';
   const totalOccurrences = Object.values(charCounts).reduce((a, b) => a + b, 0);
 
-  kbLayout.forEach(row => {
+  customLayout.forEach(row => {
       const rowDiv = document.createElement('div');
       rowDiv.className = 'keyboard-row';
 
@@ -368,6 +366,32 @@ function addEventListenersPercentage(element, charPercentages) {
 
 // Load the keyboard with the new configuration
 loadDataCreatePercentageKb("assets/english-letter-frequency.csv", 'kbEnglish', colorScalePwEnglish);
+
+//#endregion
+
+
+// -----------------------------------------------------------------------------------------
+//#region FORM SUBMISSION SEGMENT
+
+document.getElementById("form-test").addEventListener("submit", function(event) {
+  event.preventDefault(); // Prevent form from refreshing the page
+  const textInput = document.getElementById("input-text").value; 
+  processUserText(textInput); 
+});
+
+function processUserText(text) {
+  const words = text.split(/\s+/); 
+  const charCounts = countAllOccurrences(words); 
+  console.log("Character counts for user input:", charCounts);
+
+  const containerId = "kbEnglishTest"; 
+
+  const colorScaleUserEnglish = d3.scaleLinear()
+  .domain([0, 100]) 
+  .range(["#dee2ff", "#c83d0a"]); // Ensure valid color range
+
+  createKeyboard(containerId, charCounts, colorScaleUserEnglish, false, englishKbLayout); 
+}
 
 
 

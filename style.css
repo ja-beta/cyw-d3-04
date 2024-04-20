@@ -13,6 +13,14 @@ body{
     margin: 48px 5vw;
 }
 
+.big-headline{
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 800;
+  font-size: 28px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 .headline{
     font-family: 'Courier New', Courier, monospace;
     font-weight: 500;
@@ -74,5 +82,28 @@ body{
   #kbEnglish{
     text-transform: uppercase;
   }
+
+  #kbEnglishTest{
+    text-transform: uppercase;
+  }
+
+#form-test{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#submit-button{
+  margin-bottom: 32px;
+}
+
+#input-text{
+  width: 75%;
+  min-width: 75%;
+  max-width: 75%;
+  max-height: 500px;
+  min-height: 48px;
+  margin-bottom: 24px;
+}
   
   

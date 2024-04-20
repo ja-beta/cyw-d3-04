@@ -1,25 +1,37 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>D3-04</title>
-        <link href="style.css" rel="stylesheet" />
-        <script src="https://d3js.org/d3.v6.min.js"></script>
-    
-    </head>
-    <body>
-        <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-        <div id="wrapper">
-            <div id="main">
-                <h1 class="headline">characters by occurrence in compromised passwords</h1>
-                <div id="kbOne"></div>
-                <h1 class="headline">characters by first letter occurrence in compromised passwords</h1>
-                <div id="kbTwo"></div>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3-04</title>
+    <link href="style.css" rel="stylesheet" />
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <div id="wrapper">
+        <div id="main">
+            <h1 class="headline">characters by occurrence in compromised passwords</h1>
+            <div id="kbOne"></div>
+            <h1 class="headline">characters by first letter occurrence in compromised passwords</h1>
+            <div id="kbTwo"></div>
+            <h1 class="big-headline">Test yourself</h1>
+            <h1 class="headline">Input your own text</h1>
+            <form id="form-test">
+                <textarea id="input-text" name="message" rows="10" cols="30"></textarea>
+                <input type="submit" id="submit-button">
+            </form>
+            <div id="test-container">
+                <div id="kbEnglishTest"></div>
                 <h1 class="headline">Characters by occurrence in the English language</h1>
                 <div id="kbEnglish"></div>
             </div>
         </div>
-        <script src="script.js"></script>
-    </body>
+    </div>
+    <script src="script.js"></script>
+</body>
+
 </html>
