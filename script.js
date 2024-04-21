@@ -53,6 +53,25 @@ function countFirstChar(wordList) {
   return firstCharCounts;
 }
 
+function countAllOccurrencesCaseInsensitive(wordList) {
+  const charCounts = {};
+
+  wordList.forEach(word => {
+    word = word.toLowerCase(); 
+
+    for (const char of word) {
+      if (charCounts[char]) {
+        charCounts[char]++; 
+      } else {
+        charCounts[char] = 1; 
+      }
+    }
+  });
+
+  return charCounts; // Return the counts
+}
+
+
 function loadDataCreateKb(dataPath, containerId, countingFunction, colorScale, considerUppercase){
   d3.csv(dataPath).then(data => {
     const words = data.map(d => d.string);
@@ -284,9 +303,12 @@ function loadDataCreatePercentageKb(dataPath, containerId, colorScale) {
   });
 }
 
-const colorScalePwEnglish = d3.scaleLinear()
+const englishColor1 = "#dee2ff";
+const englishColor2 = "#c83d0a";
+
+const colorScaleEnglish = d3.scaleLinear()
   .domain([0, 100]) 
-  .range(["#dee2ff", "#c83d0a"]); 
+  .range([englishColor1, englishColor2]); 
 
 const englishKbLayout = [
   [{ char1: 'q' }, { char1: 'w' }, { char1: 'e' }, { char1: 'r'}, { char1: 't'}, { char1: 'y'}, { char1: 'u'}, { char1: 'i'}, { char1: 'o'}, { char1: 'p'}],
@@ -365,7 +387,7 @@ function addEventListenersPercentage(element, charPercentages) {
 
 
 // Load the keyboard with the new configuration
-loadDataCreatePercentageKb("assets/english-letter-frequency.csv", 'kbEnglish', colorScalePwEnglish);
+loadDataCreatePercentageKb("assets/english-letter-frequency.csv", 'kbEnglish', colorScaleEnglish);
 
 //#endregion
 
@@ -381,17 +403,34 @@ document.getElementById("form-test").addEventListener("submit", function(event) 
 
 function processUserText(text) {
   const words = text.split(/\s+/); 
-  const charCounts = countAllOccurrences(words); 
+  const charCounts = countAllOccurrencesCaseInsensitive(words); 
   console.log("Character counts for user input:", charCounts);
 
   const containerId = "kbEnglishTest"; 
 
   const colorScaleUserEnglish = d3.scaleLinear()
   .domain([0, 100]) 
-  .range(["#dee2ff", "#c83d0a"]); // Ensure valid color range
+  .range([englishColor1, englishColor2]); // gotta be hex
 
   createKeyboard(containerId, charCounts, colorScaleUserEnglish, false, englishKbLayout); 
 }
+
+// function processUserText(text) {
+//   const words = text.split(/\s+/); 
+//   const charCounts = countAllOccurrencesCaseInsensitive(words); 
+//   console.log("Character counts for user input:", charCounts);
+
+//   const userCharPercentages = getCharPercentages(charCounts); // Convert to percentages
+
+//   const containerId = "kbEnglishTest"; 
+//   const colorScale = d3.scaleSqrt().domain([1, 30]).range([1, 30]); // Color scale for user keyboard
+  
+//   createKeyboard(containerId, charCounts, colorScale, false); // Create the keyboard with lowercase layout
+// }
+
+
+
+// FORM RESULT
 
 
 
